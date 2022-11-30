@@ -26,6 +26,23 @@ Parameters:
     Type: CommaDelimitedList
   ElasticServerlessForwarderVPCSubnetIds:
     Type: CommaDelimitedList
+Conditions:
+  HasSecurityGroups: !Not
+    - !Equals
+      - !Join
+        - ""
+        - !Ref ElasticServerlessForwarderVPCSecurityGroupIds
+      - ""
+  HasSubnetIds: !Not
+    - !Equals
+      - !Join
+        - ""
+        - !Ref ElasticServerlessForwarderVPCSubnetIds
+      - ""
+  HasVPC: !And
+    - !Condition HasSecurityGroups
+    - !Condition HasSubnetIds
+
 Resources:
   ElasticServerlessForwarderContinuingDLQ:
     Type: AWS::SQS::Queue
@@ -75,7 +92,7 @@ Resources:
             Queue: !GetAtt ElasticServerlessForwarderContinuingQueue.Arn
             BatchSize: 10
             Enabled: true
-      VpcConfig: !If [HasVPC, { SecurityGroupIds: !Ref SecurityGroupIds , SubnetIds: !Ref SubnetIds } , !Ref "AWS::NoValue" ]
+      VpcConfig: !If [HasVPC, { SecurityGroupIds: !Ref ElasticServerlessForwarderVPCSecurityGroupIds , SubnetIds: !Ref ElasticServerlessForwarderVPCSubnetIds } , !Ref "AWS::NoValue" ]
   Fn::Transform:
     Type: AWS::CloudFormation::Macro
     Name: %sarAppName%-macro
