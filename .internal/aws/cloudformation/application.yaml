@@ -22,6 +22,10 @@ Parameters:
     Type: CommaDelimitedList
   ElasticServerlessForwarderS3Buckets:
     Type: CommaDelimitedList
+  ElasticServerlessForwarderVPCSecurityGroupIds:
+    Type: CommaDelimitedList
+  ElasticServerlessForwarderVPCSubnetIds:
+    Type: CommaDelimitedList
 Resources:
   ElasticServerlessForwarderContinuingDLQ:
     Type: AWS::SQS::Queue
@@ -71,6 +75,7 @@ Resources:
             Queue: !GetAtt ElasticServerlessForwarderContinuingQueue.Arn
             BatchSize: 10
             Enabled: true
+      VpcConfig: !If [HasVPC, { SecurityGroupIds: !Ref SecurityGroupIds , SubnetIds: !Ref SubnetIds } , !Ref "AWS::NoValue" ]
   Fn::Transform:
     Type: AWS::CloudFormation::Macro
     Name: %sarAppName%-macro

@@ -38,6 +38,20 @@ Parameters:
     Type: CommaDelimitedList
     Default: ""
     Description: Comma delimited list of S3 buckets ARNs that are the sources of the S3 SQS Event Notifications
+  ElasticServerlessForwarderVPCSecurityGroupIds:
+    Type: CommaDelimitedList
+    Default: ""
+    Description: Comma delimited list of security groups IDs in the VPC that includes the ElasticSearch host(s)
+  ElasticServerlessForwarderVPCSubnetIds:
+    Type: CommaDelimitedList
+    Default: ""
+    Description: Comma delimited list of subnet IDs in the VPC that includes the ElasticSearch host(s)
+Conditions:
+  HasVPC:
+    Fn::And:
+      - !Not [ !Equals [ !Join [",", !Ref ElasticServerlessForwarderVPCSecurityGroupIds], "" ] ]
+      - !Not [ !Equals [ !Join [",", !Ref ElasticServerlessForwarderVPCSubnetIds], "" ] ]
+
 Resources:
   ElasticServerlessForwarderEventMacro:
     Type: AWS::Serverless::Application
@@ -60,6 +74,8 @@ Resources:
         ElasticServerlessForwarderKinesisEvents: !Join [",", !Ref ElasticServerlessForwarderKinesisEvents]
         ElasticServerlessForwarderCloudWatchLogsEvents: !Join [",", !Ref ElasticServerlessForwarderCloudWatchLogsEvents]
         ElasticServerlessForwarderS3Buckets: !Join [",", !Ref ElasticServerlessForwarderS3Buckets]
+        ElasticServerlessForwarderVPCSecurityGroupIds: !Join [",", !Ref ElasticServerlessForwarderVPCSecurityGroupIds]
+        ElasticServerlessForwarderVPCSubnetIds: !Join [",", !Ref ElasticServerlessForwarderVPCSubnetIds]
     DependsOn: ElasticServerlessForwarderEventMacro
 Metadata:
   AWS::CloudFormation::Interface:
@@ -81,6 +97,11 @@ Metadata:
           default: Elastic Serverless Forwarder S3 Buckets Permissions options
         Parameters:
           - ElasticServerlessForwarderS3Buckets
+      - Label:
+          default: Elastic Serverless Forwarder Events options
+        Parameters:
+          - ElasticServerlessForwarderVPCSecurityGroupIds
+          - ElasticServerlessForwarderVPCSubnetIds
     ParameterLabels:
       ElasticServerlessForwarderS3ConfigFile:
         default: Config File
@@ -98,6 +119,10 @@ Metadata:
         default: Direct SQS queues event triggers
       ElasticServerlessForwarderS3Buckets:
         default: S3 buckets of S3 SQS Event Notifications
+      ElasticServerlessForwarderVPCSecurityGroupIds:
+        default: VPC Security Group IDs for the lambda
+      ElasticServerlessForwarderVPCSubnetIds:
+        default: VPC Subnet IDs for the lambda
   AWS::ServerlessRepo::Application:
     Name: %sarAppName%
     Description: Send observability data from your AWS environment to Elastic.
