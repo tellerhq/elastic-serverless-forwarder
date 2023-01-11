@@ -75,6 +75,8 @@ Resources:
     Properties:
       Timeout: 60
       MemorySize: 512
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 100
       CodeUri: %codeUri%
       Runtime: python3.9
       Architectures:
