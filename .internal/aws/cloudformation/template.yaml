@@ -46,6 +46,10 @@ Parameters:
     Type: CommaDelimitedList
     Default: ""
     Description: Comma delimited list of subnet IDs in the VPC that includes the ElasticSearch host(s)
+  ElasticServerlessForwarderReservedConcurrentExecutions:
+    Type: Number
+    Default: 0
+    Description: The AWS Lambda ReservedConcurrentExecutions property
 Conditions:
   HasVPC:
     Fn::And:
@@ -76,6 +80,7 @@ Resources:
         ElasticServerlessForwarderS3Buckets: !Join [",", !Ref ElasticServerlessForwarderS3Buckets]
         ElasticServerlessForwarderVPCSecurityGroupIds: !Join [",", !Ref ElasticServerlessForwarderVPCSecurityGroupIds]
         ElasticServerlessForwarderVPCSubnetIds: !Join [",", !Ref ElasticServerlessForwarderVPCSubnetIds]
+        ElasticServerlessForwarderReservedConcurrentExecutions: !Ref ElasticServerlessForwarderReservedConcurrentExecutions
     DependsOn: ElasticServerlessForwarderEventMacro
 Metadata:
   AWS::CloudFormation::Interface:
@@ -123,6 +128,8 @@ Metadata:
         default: VPC Security Group IDs for the lambda
       ElasticServerlessForwarderVPCSubnetIds:
         default: VPC Subnet IDs for the lambda
+      ElasticServerlessForwarderReservedConcurrentExecutions:
+        default: ReservedConcurrentExecutions property for the lambda
   AWS::ServerlessRepo::Application:
     Name: %sarAppName%
     Description: Send observability data from your AWS environment to Elastic.
